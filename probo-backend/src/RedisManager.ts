@@ -1,7 +1,5 @@
 import { createClient, RedisClientType } from 'redis';
 import {  QUEUE_CHANNEL } from './utils/constants';
-import { QueueOrder } from './utils/types';
-
 
 class RedisManager {
     private queue: RedisClientType;

@@ -29,8 +29,7 @@ export interface Market {
     [key: string]: MarketData;
 }
 
-export interface QueueOrder{
-    orderId: string;
-    buyOrSell: BuyOrSell;
-    order: OrderData;
+export interface QueueData{
+    type: string;
+    data: Object;
 }

@@ -7,27 +7,28 @@ import { QueueOrder } from "./utils/types";
 async function main() {
     while (true) {
         try {
-            const orderData: QueueOrder = await redisManager.getOrderFromQueue();
-            const  { symbol, stockType, price, qty, user } = orderData.order;
-            const orderId = orderData.orderId;
-            switch(orderData.buyOrSell){
+            const data = await redisManager.getValueFromQueue();
+            console.log(data.type);
+            switch (data.type) {
                 case BUY:
-                    engine.buy(symbol, stockType, price, qty, user, orderId);
-                    redisManager.publishOrder(orderId);
-                    redisManager.publishOrderBook(symbol);
+                    engine.buy(data.symbol, data.stockType, data.price, data.qty, data.user, data.orderId);
+                    redisManager.publishOrder(data.orderId);
+                    redisManager.publishOrderBook(data.symbol);
                     break;
                 case SELL:
-                    engine.sell(symbol, stockType, price, qty, user,SELL, orderId);
-                    redisManager.publishOrder(orderId);
-                    redisManager.publishOrderBook(symbol);
+                    engine.sell(data.symbol, data.stockType, data.price, data.qty, data.user, SELL, data.orderId);
+                    redisManager.publishOrder(data.orderId);
+                    redisManager.publishOrderBook(data.symbol);
                     break;
-                default: 
-                    throw new Error('Error while popping from queue');
+                case 'onramp':
+
+                default:
+                    throw new Error('Type does not exists');
             }
         } catch (error) {
             console.log(error);
-            }
         }
+    }
 }
 
-    main();
+main();
