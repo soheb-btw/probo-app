@@ -38,6 +38,10 @@ class RedisManager {
     public publishOrder(channel: string){
         this.redisClient.publish(channel, JSON.stringify(`Your order ${channel} has been placed`));
     }
+
+    public publishRedisPubSub(channel: string, payload: any){
+        this.redisClient.publish(channel, JSON.stringify(payload));
+    }
 }
 
 export const redisManager = RedisManager.getInstance();

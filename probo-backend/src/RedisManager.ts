@@ -1,5 +1,6 @@
 import { createClient, RedisClientType } from 'redis';
 import {  QUEUE_CHANNEL } from './utils/constants';
+import { QueueData } from './utils/types';
 
 class RedisManager {
     private queue: RedisClientType;
@@ -19,9 +20,9 @@ class RedisManager {
         return this.instance;
     }
 
-    public publishAndWaitForResponse( queuePayload: string, pubSubKey: string) {
+    public publishAndWaitForResponse( queuePayload: QueueData, pubSubKey: string) {
         return new Promise((res, rej) => {
-            this.queue.lPush(QUEUE_CHANNEL, queuePayload);
+            this.queue.lPush(QUEUE_CHANNEL, JSON.stringify(queuePayload));
             this.pubSub.subscribe(pubSubKey, (message) => {
                 this.pubSub.unsubscribe(pubSubKey);
                 res(message);

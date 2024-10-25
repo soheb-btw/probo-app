@@ -1,7 +1,20 @@
 import express from 'express';
+import { redisManager } from '../RedisManager';
+import { APIType } from '../utils/constants';
+import { QueueData } from '../utils/types';
 
 export const userRouter = express.Router();
 
-userRouter.get('/getbalance', (req, res) => {
-    res.send('hi there');
+userRouter.post('/create/:userId', async (req, res) => {
+    const userId = req.params.userId;
+    const queueData: QueueData = {
+        type: APIType.CreateUser,
+        data: userId
+    }
+    try {
+        await redisManager.publishAndWaitForResponse(queueData, userId);
+        res.status(200).json({message: `User ${userId} has been created`});
+    } catch (error) {
+        res.send('something went wrong :(');
+    }
 });

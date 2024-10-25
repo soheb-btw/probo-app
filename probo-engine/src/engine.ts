@@ -1,6 +1,6 @@
 
 
-import {  SELL, OrderType, PSEUDO, StockType } from "./utils/constants";
+import {  APIType, OrderType, PSEUDO, StockType } from "./utils/constants";
 import { Market, OrderDetails } from "./utils/types";
 
 const ORDERBOOK: Market = {
@@ -12,37 +12,6 @@ const ORDERBOOK: Market = {
         }
     }
 }
-
-const STOCK_BALANCES = {
-	user1: {
-	   "BTC_USDT_10_Oct_2024_9_30": {
-		   "yes": {
-			   "quantity": 1,
-			   "locked": 0
-		   }
-	   }
-	},
-	user2: {
-		"BTC_USDT_10_Oct_2024_9_30": {
-		   "no": {
-			   "quantity": 3,
-			   "locked": 4
-		   }
-	   }
-	}
-}
-
-const INR_BALANCES = {
-    "user1": {
-        balance: 1000,
-        locked: 0
-    },
-    "user2": {
-        balance: 20,
-        locked: 10
-    }
-};
-
 
 class Engine {
     private orderBook: Market;
@@ -68,7 +37,7 @@ class Engine {
             quantity = this.calculateOrder(stock, buyPrice, PSEUDO, quantity);
         }
         if (stock[buyPrice].orders.sell && quantity !== 0) {
-            quantity = this.calculateOrder(stock, buyPrice, SELL, quantity);
+            quantity = this.calculateOrder(stock, buyPrice, APIType.SELL, quantity);
         }
         if (quantity > 0) {
             this.placePseudoSellOrder(market, stockType, buyPrice, quantity, user, orderId);
@@ -106,7 +75,7 @@ class Engine {
             return quantity;
         }
         delete stock[buyPrice];
-        
+
         if (stock[buyPrice] && stock[buyPrice].orders.sell && Object.keys(stock[buyPrice].orders.sell).length === 0) {
             delete stock[buyPrice].orders.sell;
         }
@@ -149,15 +118,15 @@ class Engine {
         return stock === 'yes' ? 'no' : 'yes';
     }
 
-    getOrderBook(){
+    getOrderBook() {
         return this.orderBook;
     }
 
-    buy(symbol: string, stockType: StockType, price: string, quantity: number, user: string, orderId: string){
+    buy(symbol: string, stockType: StockType, price: string, quantity: number, user: string, orderId: string) {
         engine.placeBuyOrder(symbol, stockType, price, quantity, user, orderId);
     }
 
-    sell(symbol: string, stockType: StockType, price: string, qty: number, user: string, type: OrderType, orderId: string){
+    sell(symbol: string, stockType: StockType, price: string, qty: number, user: string, type: OrderType, orderId: string) {
         let remainingQty = qty;
         this.placeSellOrder(symbol, stockType, price, qty, user, type, orderId);
         const { priceExists, stock, sellPrice } = this.checkPseudoOrderExist(symbol, stockType, price, qty, user, orderId);
@@ -165,9 +134,10 @@ class Engine {
             remainingQty = this.calculateOrder(stock, sellPrice, PSEUDO, qty);
         }
         if (remainingQty > 0) {
-            this.placeSellOrder(symbol, stockType, price, remainingQty, user, SELL, orderId);
+            this.placeSellOrder(symbol, stockType, price, remainingQty, user, APIType.SELL, orderId);
         }
     }
+
 }
 
-export const engine = Engine.getInstance();
+export const engine = Engine.getInstance(); 

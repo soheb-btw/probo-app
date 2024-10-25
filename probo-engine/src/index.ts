@@ -1,27 +1,34 @@
 import { engine } from "./engine";
 import { redisManager } from "./redisManager";
-import { BUY, SELL } from "./utils/constants";
-import { QueueOrder } from "./utils/types";
+import { userManager } from "./userManager";
+import { APIType } from "./utils/constants";
 
 
 async function main() {
     while (true) {
         try {
-            const data = await redisManager.getValueFromQueue();
-            console.log(data.type);
-            switch (data.type) {
-                case BUY:
+            const response = await redisManager.getValueFromQueue();
+            const data = response.data;
+            console.log(response.type);
+            switch (response.type) {
+                case APIType.BUY:
                     engine.buy(data.symbol, data.stockType, data.price, data.qty, data.user, data.orderId);
-                    redisManager.publishOrder(data.orderId);
-                    redisManager.publishOrderBook(data.symbol);
+                    await redisManager.publishOrder(data.orderId);
+                    await redisManager.publishOrderBook(data.symbol);
                     break;
-                case SELL:
-                    engine.sell(data.symbol, data.stockType, data.price, data.qty, data.user, SELL, data.orderId);
-                    redisManager.publishOrder(data.orderId);
-                    redisManager.publishOrderBook(data.symbol);
+                case APIType.SELL:
+                    engine.sell(data.symbol, data.stockType, data.price, data.qty, data.user, APIType.SELL, data.orderId);
+                    await redisManager.publishOrder(data.orderId);
+                    await redisManager.publishOrderBook(data.symbol);
                     break;
-                case 'onramp':
-
+                case APIType.OnRamp:
+                    userManager.onRamp(data.userId, data.amount);
+                    await redisManager.publishRedisPubSub(data.userId, data.amount);
+                    break;
+                case APIType.CreateUser:
+                    userManager.createUser(data);
+                    await redisManager.publishRedisPubSub(data, data);
+                    break;
                 default:
                     throw new Error('Type does not exists');
             }
