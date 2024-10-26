@@ -1,14 +1,20 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import './App.css'
 
 function App() {
-  const [data, setData] = useState({});
 
-  useEffect(()=>{
+  useEffect(() => {
   }, [])
   return (
     <>
-      <div>test</div>
+     <div>
+      <table>
+        <th>test haeader</th>
+        <th>test haeader</th>
+        <tr>test</tr>
+        <tr>test</tr>
+      </table>
+    </div>
     </>
   )
 }
