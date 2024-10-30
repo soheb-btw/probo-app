@@ -2,6 +2,7 @@ import { createClient, RedisClientType } from 'redis';
 import {  QUEUE_CHANNEL } from './utils/constants';
 import { Market, QueueOrder, QueueResponse } from './utils/types';
 import { engine } from './engine';
+import { INR_BALANCES, STOCK_BALANCES } from './userManager';
 
 class RedisManager {
     private redisClient: RedisClientType;
@@ -22,7 +23,6 @@ class RedisManager {
 
     public async getValueFromQueue(): Promise<any> {
         const data = await this.redisClient.brPop(QUEUE_CHANNEL, 0);
-        console.log(data);
         return JSON.parse(data.element);
     }
 
@@ -34,9 +34,9 @@ class RedisManager {
     public publishOrderBook(channel: string) {
         this.redisClient.publish(channel, JSON.stringify(this.orderBook[channel]));
     }
-    
+     
     public publishOrder(channel: string){
-        this.redisClient.publish(channel, JSON.stringify(`Your order ${channel} has been placed`));
+        this.redisClient.publish(channel, JSON.stringify(STOCK_BALANCES));
     }
 
     public publishRedisPubSub(channel: string, payload: any){

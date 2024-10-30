@@ -1,14 +1,24 @@
 
 
-import {  APIType, OrderType, PSEUDO, StockType } from "./utils/constants";
+import { userManager } from "./userManager";
+import { APIType, OrderType, PSEUDO, StockType } from "./utils/constants";
 import { Market, OrderDetails } from "./utils/types";
 
-const ORDERBOOK: Market = {
+export const ORDERBOOK: Market = {
     "BTC_USDT_10_Oct_2024_9_30": {
-        "yes": {
-        },
+        "yes": {},
         "no": {
-
+            "4": {
+                "total": 8,
+                "orders": {
+                    "sell": {
+                        "4947": {
+                            "user": "121",
+                            "qty": 8
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -29,25 +39,31 @@ class Engine {
 
     private placeBuyOrder(market: string, stockType: StockType, buyPrice: string, quantity: number, user: string, orderId: string): void {
         const stock = this.orderBook[market][stockType];
+        let remainingQty = quantity
         if (!stock[buyPrice]) {
             this.placePseudoSellOrder(market, stockType, buyPrice, quantity, user, orderId);
             return;
         }
-        if (stock[buyPrice].orders.pseudo && quantity !== 0) {
-            quantity = this.calculateOrder(stock, buyPrice, PSEUDO, quantity);
+        if (Object.keys(stock).length !== 0 && stock[buyPrice].orders.pseudo && quantity !== 0) {
+            remainingQty = this.calculateOrder(stock, buyPrice, PSEUDO, quantity, user, market, stockType);
         }
-        if (stock[buyPrice].orders.sell && quantity !== 0) {
-            quantity = this.calculateOrder(stock, buyPrice, APIType.SELL, quantity);
+        if (Object.keys(stock).length !== 0 && stock[buyPrice].orders.sell && quantity !== 0) {
+            remainingQty = this.calculateOrder(stock, buyPrice, APIType.SELL, remainingQty, user, market, stockType);
         }
-        if (quantity > 0) {
-            this.placePseudoSellOrder(market, stockType, buyPrice, quantity, user, orderId);
+        userManager.updateBuyerBalance(user, buyPrice, quantity, remainingQty, market, stockType);
+
+        if (remainingQty > 0) {
+            this.placePseudoSellOrder(market, stockType, buyPrice, remainingQty, user, orderId);
+            userManager.lockBuyerBalance(user, buyPrice, remainingQty);
         }
     }
 
-    private calculateOrder(stock: Record<string, OrderDetails>, buyPrice: string, type: OrderType, quantity: number): number {
+
+    private calculateOrder(stock: Record<string, OrderDetails>, buyPrice: string, type: OrderType, quantity: number, user: string, market: string, stockType: StockType): number {
         if (!stock[buyPrice].orders[type]) {
             return quantity;
         }
+
         Object.keys(stock[buyPrice].orders[type]).forEach((orderId) => {
 
             if (!(stock[buyPrice].orders[type] && Object.keys(stock[buyPrice].orders[type]).length > 0)) { return }
@@ -56,29 +72,34 @@ class Engine {
                 if (stock[buyPrice].orders[type][orderId].qty > quantity) {
                     stock[buyPrice].orders[type][orderId].qty -= quantity;
                     stock[buyPrice].total -= quantity;
+                    const sellerOrder = stock[buyPrice].orders[type][orderId];
+                    userManager.completedOrders(sellerOrder.user, user, quantity, market, stockType, buyPrice, type);
                     quantity = 0;
                     return quantity;
                 }
                 else if (stock[buyPrice].orders[type][orderId].qty === quantity) {
                     stock[buyPrice].total -= quantity;
+                    const sellerOrder = stock[buyPrice].orders[type][orderId];
+                    userManager.completedOrders(sellerOrder.user, user, quantity, market, stockType, buyPrice, type);
                     quantity = 0;
                     delete stock[buyPrice].orders[type][orderId];
                 } else {
                     quantity -= stock[buyPrice].orders[type][orderId].qty;
                     stock[buyPrice].total -= stock[buyPrice].orders[type][orderId].qty;
+                    const sellerOrder = stock[buyPrice].orders[type][orderId];
+                    userManager.completedOrders(sellerOrder.user, user, stock[buyPrice].orders[type][orderId].qty, market, stockType, buyPrice, type);
                     delete stock[buyPrice].orders[type][orderId];
                 }
             }
         });
-
-        if (!(stock[buyPrice].total === 0)) {
-            return quantity;
-        }
-        delete stock[buyPrice];
-
         if (stock[buyPrice] && stock[buyPrice].orders.sell && Object.keys(stock[buyPrice].orders.sell).length === 0) {
             delete stock[buyPrice].orders.sell;
         }
+
+        if (stock[buyPrice].total === 0) {
+            delete stock[buyPrice];
+        }
+
         return quantity;
     }
 
@@ -128,13 +149,14 @@ class Engine {
 
     sell(symbol: string, stockType: StockType, price: string, qty: number, user: string, type: OrderType, orderId: string) {
         let remainingQty = qty;
-        this.placeSellOrder(symbol, stockType, price, qty, user, type, orderId);
         const { priceExists, stock, sellPrice } = this.checkPseudoOrderExist(symbol, stockType, price, qty, user, orderId);
         if (priceExists) {
-            remainingQty = this.calculateOrder(stock, sellPrice, PSEUDO, qty);
+            remainingQty = this.calculateOrder(stock, sellPrice, PSEUDO, qty, user, symbol, stockType);
         }
+        userManager.updateSellerStock(user, price, qty, remainingQty, symbol, stockType);
         if (remainingQty > 0) {
             this.placeSellOrder(symbol, stockType, price, remainingQty, user, APIType.SELL, orderId);
+            userManager.lockSellerStock(user, symbol, stockType, remainingQty);
         }
     }
 

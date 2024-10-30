@@ -22,11 +22,11 @@ class RedisManager {
 
     public publishAndWaitForResponse( queuePayload: QueueData, pubSubKey: string) {
         return new Promise((res, rej) => {
-            this.queue.lPush(QUEUE_CHANNEL, JSON.stringify(queuePayload));
             this.pubSub.subscribe(pubSubKey, (message) => {
                 this.pubSub.unsubscribe(pubSubKey);
                 res(message);
             });
+            this.queue.lPush(QUEUE_CHANNEL, JSON.stringify(queuePayload));
         });
     }
 }

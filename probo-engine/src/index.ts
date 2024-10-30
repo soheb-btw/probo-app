@@ -9,17 +9,16 @@ async function main() {
         try {
             const response = await redisManager.getValueFromQueue();
             const data = response.data;
-            console.log(response.type);
             switch (response.type) {
                 case APIType.BUY:
-                    engine.buy(data.symbol, data.stockType, data.price, data.qty, data.user, data.orderId);
+                    engine.buy(data.order.symbol, data.order.stockType, data.order.price, data.order.qty, data.order.user, data.orderId);
                     await redisManager.publishOrder(data.orderId);
-                    await redisManager.publishOrderBook(data.symbol);
+                    await redisManager.publishOrderBook(data.order.symbol);
                     break;
                 case APIType.SELL:
-                    engine.sell(data.symbol, data.stockType, data.price, data.qty, data.user, APIType.SELL, data.orderId);
+                    engine.sell(data.order.symbol, data.order.stockType, data.order.price, data.order.qty, data.order.user, APIType.SELL, data.orderId);
                     await redisManager.publishOrder(data.orderId);
-                    await redisManager.publishOrderBook(data.symbol);
+                    await redisManager.publishOrderBook(data.order.symbol);
                     break;
                 case APIType.OnRamp:
                     userManager.onRamp(data.userId, data.amount);

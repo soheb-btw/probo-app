@@ -52,11 +52,11 @@ interface UserBalance{
 export interface StockBalance{
   [userId: string] : {
     [symbol: string]: {
-      yes? : {
+      yes : {
         quantity: number,
         locked: number
       },
-      no?: {
+      no: {
         quantity: number,
         locked: number
       }
