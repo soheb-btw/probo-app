@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import './App.css'
+import { Button } from './components/ui/button'
 
 function App() {
 
@@ -7,14 +8,7 @@ function App() {
   }, [])
   return (
     <>
-     <div>
-      <table>
-        <th>test haeader</th>
-        <th>test haeader</th>
-        <tr>test</tr>
-        <tr>test</tr>
-      </table>
-    </div>
+      <Button>click me</Button>
     </>
   )
 }
