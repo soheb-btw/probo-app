@@ -3,7 +3,7 @@ import './App.css'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { Home } from './pages/Home'
 import Market from './pages/Market'
-// import Market from './pages/Market'
+import { Events } from './pages/Events'
 
 const router = createBrowserRouter([{
   path: '/',
@@ -11,8 +11,10 @@ const router = createBrowserRouter([{
 },{
   path: '/market',
   element: <Market/>
-}
-])
+},{
+  path: '/events',
+  element: <Events/>
+}])
 
 function App() {
 
