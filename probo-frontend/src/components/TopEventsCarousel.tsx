@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Card from "./card"
 import { Button } from "./ui/button"
 import { Calendar } from "lucide-react"
@@ -18,6 +19,7 @@ interface TopEventsCarouselProps {
 
 export const TopEventsCarousel = ({ events }: TopEventsCarouselProps) => {
   const [currentIndex, setCurrentIndex] = useState(0)
+  const navigate = useNavigate()
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -31,9 +33,13 @@ export const TopEventsCarousel = ({ events }: TopEventsCarouselProps) => {
 
   const currentEvent = events[currentIndex]
 
+  const handleEventClick = () => {
+    navigate(`/trade/${currentEvent.id}`)
+  }
+
   return (
-    <Card className="col-span-2">
-      <div className="p-8 min-h-[400px] flex flex-col justify-between">
+    <Card>
+      <div className="p-8 min-h-[400px] flex flex-col justify-between" onClick={handleEventClick}>
         <div>
           <div className="flex justify-between items-start mb-6">
             <div className="max-w-2xl">

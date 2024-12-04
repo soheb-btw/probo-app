@@ -1,0 +1,7 @@
+.bg-gradient-yes {
+  background-image: linear-gradient(to left,rgb(187, 216, 255) var(--gradient-width), white var(--gradient-width));
+}
+
+.bg-gradient-no {
+  background-image: linear-gradient(to left, rgb(255, 220, 219) var(--gradient-width), white var(--gradient-width));
+}

@@ -59,6 +59,7 @@
 @layer base {
   * {
     @apply border-border;
+    font-family: Work Sans,sans-serif;
   }
   body {
     @apply bg-[#f5f5f5] text-foreground;
