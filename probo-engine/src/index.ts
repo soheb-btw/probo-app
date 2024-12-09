@@ -4,11 +4,13 @@ import { userManager } from "./userManager";
 import { APIType } from "./utils/constants";
 
 
+console.log('engine started');
 async function main() {
     while (true) {
         try {
             const response = await redisManager.getValueFromQueue();
             const data = response.data;
+            console.log(data);
             switch (response.type) {
                 case APIType.BUY:
                     engine.buy(data.order.symbol, data.order.stockType, data.order.price, data.order.qty, data.order.user, data.orderId);

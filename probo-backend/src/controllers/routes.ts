@@ -17,8 +17,15 @@ router.post("/onramp/inr", async (req, res) => {
         type: APIType.OnRamp,
         data: req.body,
     };
-    const response = await redisManager.publishAndWaitForResponse(queueData, req.body.userId);
-    res.send(response);
+    try {
+        const response = await redisManager.publishAndWaitForResponse(queueData, req.body.userId);
+        res.status(200).json({
+            message: "INR deposited successfully"
+        });
+    } catch (error) {
+        res.send("Error");
+    }
 });
 
 export default router;
+

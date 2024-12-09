@@ -15,7 +15,10 @@ class WebSocketManager {
 
     private async initialize() {
         this.redisClient = await this.connectToRedis();
-        this.server.on('connection', (ws) => this.handleConnection(ws));
+        this.server.on('connection', (ws) => {
+            this.handleConnection(ws);
+            ws.send('connect check frontend');
+        });
     }
 
     private async connectToRedis() {
@@ -48,7 +51,7 @@ class WebSocketManager {
         this.users[userId].subscribe(symbol);
 
         if (this.isFirstSubscriber(symbol)) {
-            this.redisClient.subscribe(symbol, (message:string) => {
+            this.redisClient.subscribe(symbol, (message: string) => {
                 this.broadcastMessageToSubscribers(message, symbol);
             });
         }
@@ -68,7 +71,7 @@ class WebSocketManager {
     }
 
     private handleDisconnect(userId: number) {
-        delete this.users[userId]; 
+        delete this.users[userId];
     }
 }
 

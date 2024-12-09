@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import Card from './card';
 
 const PlaceOrder = () => {
-    const [selectedOption, setSelectedOption] = useState<'yes' | 'no' | null>(null);
-    const location = useLocation();
+    const [selectedOption, setSelectedOption] = useState<'yes' | 'no' >('yes');
     const [price, setPrice] = useState<string>('');
     const [quantity, setQuantity] = useState<string>('');
 
@@ -18,8 +18,8 @@ const PlaceOrder = () => {
 
 
     return (
-        <div className="w-1/2 p-4">
-            <div className="flex flex-col gap-y-4 bg-white rounded-lg shadow-lg p-6 max-w-md mx-auto">
+        <Card>
+            <div className='flex flex-col gap-y-4 text-sm'>
                 {/* Yes/No Toggle */}
                 <div className="flex rounded-full border border-gray-300">
                     <button
@@ -121,7 +121,7 @@ const PlaceOrder = () => {
                     Place order
                 </button>
             </div>
-        </div>
+        </Card>
     );
 };
 

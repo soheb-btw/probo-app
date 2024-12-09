@@ -8,6 +8,7 @@ export const orderRoutes = express.Router();
 
 orderRoutes.post('/buy/yes', async (req, res) => {
     const { symbol, stockType, price, qty, user }: OrderData = req.body;
+    console.log('here');
     const orderId = generateRandomId();
     const queueData: QueueData = {
         type: APIType.BUY, data: {

@@ -55,7 +55,6 @@ export const Home = () => {
 
   return (
     <>
-      <div className="">
         <section
           id="header"
           className="bg-[url('../assets/header-bg.svg')] w-full min-h-[650px] flex justify-between"
@@ -267,7 +266,6 @@ export const Home = () => {
           </div>
           <img src={person2} alt="image" className="w-[20rem] absolute right-[5%] bottom-0" />
         </section>
-      </div>
       {isDownload && <Download setIsDownload={setIsDownload} />}
     </>
   );

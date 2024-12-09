@@ -13,8 +13,8 @@ userRouter.post('/create/:userId', async (req, res) => {
     }
     try {
         await redisManager.publishAndWaitForResponse(queueData, userId);
-        res.status(200).json({message: `User ${userId} has been created`});
+        res.status(200).json({message: 'User created successfully'});
     } catch (error) {
         res.send('something went wrong :(');
-    }
+  }
 });

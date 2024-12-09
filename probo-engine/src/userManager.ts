@@ -70,7 +70,6 @@ class UserManager {
             balance: 0,
             locked: 0
         }
-        console.log(INR_BALANCES);
     }
 
     createUserStockBal(userId: string, symbol: string) {
